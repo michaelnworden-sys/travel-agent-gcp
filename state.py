@@ -1,7 +1,8 @@
-from typing import Annotated, TypedDict, Optional
+from typing import Annotated, Optional
+# CHANGE: Import TypedDict from typing_extensions to fix Pydantic V2 cloud error
+from typing_extensions import TypedDict
 from langgraph.graph.message import AnyMessage, add_messages
 
-# We remove "user_info" for now so the Chat Interface works automatically.
-class State(TypedDict, total=False):
+class State(TypedDict):
     messages: Annotated[list[AnyMessage], add_messages]
-    # user_info: str  <--- COMMENT THIS OUT
+    user_info: Optional[str]
