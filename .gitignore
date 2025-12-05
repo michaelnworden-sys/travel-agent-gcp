@@ -1,0 +1,6 @@
+# The Sandbox
+.venv/
+__pycache__/
+
+# The Secrets
+.env

@@ -1,0 +1,10 @@
+langgraph
+langchain
+langchain-community
+langchain-google-genai
+pandas
+requests
+fastapi
+uvicorn
+langserve
+sse_starlette
