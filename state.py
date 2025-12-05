@@ -1,8 +1,9 @@
-from typing import Annotated, Optional
-# CHANGE: Import TypedDict from typing_extensions to fix Pydantic V2 cloud error
-from typing_extensions import TypedDict
+from typing import Annotated
+# We import NotRequired to tell the strict server this key can be missing
+from typing_extensions import TypedDict, NotRequired
 from langgraph.graph.message import AnyMessage, add_messages
 
 class State(TypedDict):
     messages: Annotated[list[AnyMessage], add_messages]
-    user_info: Optional[str]
+    # NotRequired means: "You don't even have to send this key if you don't want to."
+    user_info: NotRequired[str]
