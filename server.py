@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from langserve import add_routes
 from agent import schedule_agent
+# --- NEW IMPORT: We need to import the State definition ---
+from state import FerryState
 
 app = FastAPI(
     title="SoundHopper (Local)",
@@ -242,7 +244,8 @@ async def root():
 # API routes
 add_routes(
     app,
-    schedule_agent,
+    # --- FIX: We explicitly tell the server what the input/output types are ---
+    schedule_agent.with_types(input_type=FerryState, output_type=FerryState),
     path="/agent",
     playground_type="default",
 )
