@@ -1,15 +1,11 @@
-from typing import TypedDict, Annotated
+from typing import TypedDict, Annotated, Any
 from langgraph.graph.message import add_messages
 
 class FerryState(TypedDict):
-    # Standard chat history
-    messages: Annotated[list, add_messages]
+    # We changed 'list' to 'list[Any]' so the server knows what to expect
+    messages: Annotated[list[Any], add_messages]
     
-    # --- THIS WAS MISSING ---
-    # The agent uses this to track how many "turns" it has left so it doesn't loop forever.
     remaining_steps: int 
-    
-    # Our custom slots
     departure_terminal: str
     arrival_terminal: str
     date_time_query: str
