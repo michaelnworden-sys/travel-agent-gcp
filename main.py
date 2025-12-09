@@ -1,41 +1,42 @@
-from graph import graph
-import uuid
+from agent import schedule_agent
 
-# 1. Create a unique ID for this conversation
-# In a real app, this would be the User ID or Session ID.
-# This ensures the memory stays consistent for this specific chat.
-thread_id = str(uuid.uuid4())
-config = {"configurable": {"thread_id": thread_id}}
+def main():
+    print("-------------------------------------------------------")
+    print("⛴️  SOUNDHOPPER (LangGraph Edition) - LOCAL TERMINAL")
+    print("   Type 'quit' or 'q' to exit.")
+    print("-------------------------------------------------------")
 
-print("------------------------------------------------")
-print("🚀 SWISS AIR AGENT (GCP EDITION) IS ONLINE")
-print("------------------------------------------------")
-print("Type 'quit' to exit.")
+    # This ID tells the agent "This is the same conversation"
+    # In a real app, this would be the user's Session ID.
+    config = {"configurable": {"thread_id": "1"}}
 
-# 2. The Chat Loop
-while True:
-    # Get User Input
-    user_input = input("\nUser: ")
-    
-    if user_input.lower() in ["quit", "exit", "q"]:
-        print("Goodbye!")
-        break
+    while True:
+        try:
+            user_input = input("\nUser: ")
+            if user_input.lower() in ["quit", "q", "exit"]:
+                print("SoundHopper: Safe travels!")
+                break
+            
+            input_message = {"messages": [("user", user_input)]}
 
-    # 3. Send input to the Graph (The Brain)
-    # We pass the input as a "user" message.
-    events = graph.stream(
-        {"messages": [("user", user_input)]},
-        config,
-        stream_mode="values"
-    )
+            # We pass 'config' so the agent loads the previous memories
+            result = schedule_agent.invoke(input_message, config=config)
 
-    # 4. Print the Output
-    # The graph returns the WHOLE history every time.
-    # We just want to see the last message.
-    for event in events:
-        messages = event.get("messages")
-        if messages:
-            last_message = messages[-1]
-            # Only print if it's from the AI (not the user repeating themselves)
-            if last_message.type == "ai":
-                print(f"Agent: {last_message.content}")
+            # --- CLEANER OUTPUT LOGIC ---
+            # Gemini 2.5 sometimes returns a list of blocks [{'text': '...'}]
+            # instead of a simple string. This handles both.
+            raw_content = result["messages"][-1].content
+            
+            if isinstance(raw_content, list):
+                # Join all text parts together
+                clean_text = "".join([block.get("text", "") for block in raw_content if "text" in block])
+                print(f"SoundHopper: {clean_text}")
+            else:
+                # It's just a normal string
+                print(f"SoundHopper: {raw_content}")
+
+        except Exception as e:
+            print(f"❌ Error: {e}")
+
+if __name__ == "__main__":
+    main()

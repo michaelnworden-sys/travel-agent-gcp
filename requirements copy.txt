@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+langchain-google-genai
+langgraph
+langchain
+googlemaps
+google-cloud-bigquery
+requests
+parsedatetime
+pytz
+python-dotenv
+langserve[all]

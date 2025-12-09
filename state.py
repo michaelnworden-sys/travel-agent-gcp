@@ -1,9 +1,15 @@
-from typing import Annotated
-# We import NotRequired to tell the strict server this key can be missing
-from typing_extensions import TypedDict, NotRequired
-from langgraph.graph.message import AnyMessage, add_messages
+from typing import TypedDict, Annotated
+from langgraph.graph.message import add_messages
 
-class State(TypedDict):
-    messages: Annotated[list[AnyMessage], add_messages]
-    # NotRequired means: "You don't even have to send this key if you don't want to."
-    user_info: NotRequired[str]
+class FerryState(TypedDict):
+    # Standard chat history
+    messages: Annotated[list, add_messages]
+    
+    # --- THIS WAS MISSING ---
+    # The agent uses this to track how many "turns" it has left so it doesn't loop forever.
+    remaining_steps: int 
+    
+    # Our custom slots
+    departure_terminal: str
+    arrival_terminal: str
+    date_time_query: str

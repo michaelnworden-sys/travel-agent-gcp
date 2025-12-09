@@ -1,29 +1,29 @@
 from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 from langserve import add_routes
-from graph import graph
+from agent import schedule_agent
 
 app = FastAPI(
-    title="Swiss Air Agent (GCP)",
+    title="SoundHopper (Local)",
     version="1.0",
-    description="A LangGraph agent deployed on Google Cloud Run"
+    description="The SoundHopper Ferry Agent"
 )
 
-# CUSTOM CHAT UI - This MUST come BEFORE add_routes
+# CUSTOM CHAT UI
 @app.get("/", response_class=HTMLResponse)
 async def root():
     return """
     <!DOCTYPE html>
     <html>
     <head>
-        <title>Swiss Air Assistant</title>
+        <title>SoundHopper Ferry Assistant</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style>
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body { 
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                background: linear-gradient(135deg, #005151 0%, #003366 100%);
                 height: 100vh;
                 display: flex;
                 justify-content: center;
@@ -41,7 +41,7 @@ async def root():
                 overflow: hidden;
             }
             .header {
-                background: #667eea;
+                background: #007B5F;
                 color: white;
                 padding: 20px;
                 text-align: center;
@@ -73,7 +73,7 @@ async def root():
                 word-wrap: break-word;
             }
             .user .message-content {
-                background: #667eea;
+                background: #007B5F;
                 color: white;
                 border-bottom-right-radius: 4px;
             }
@@ -100,11 +100,11 @@ async def root():
                 transition: border 0.3s;
             }
             #input:focus {
-                border-color: #667eea;
+                border-color: #007B5F;
             }
             #send {
                 padding: 12px 30px;
-                background: #667eea;
+                background: #007B5F;
                 color: white;
                 border: none;
                 border-radius: 25px;
@@ -114,7 +114,7 @@ async def root():
                 transition: background 0.3s;
             }
             #send:hover {
-                background: #5568d3;
+                background: #005c47;
             }
             #send:disabled {
                 background: #ccc;
@@ -139,18 +139,19 @@ async def root():
     <body>
         <div class="container">
             <div class="header">
-                ✈️ Swiss Air Assistant
+                ⛴️ SoundHopper
             </div>
             <div id="chat">
                 <div class="message assistant">
                     <div class="message-content">
-                        Hi! I'm your Swiss Air assistant. I can help you look up flights and hotels. 
-                        Try asking: "Find flights from ZRH to ORD" or "Book a hotel in Chicago"
+                        Hi! I'm SoundHopper. I can help you with Washington State Ferry schedules, fares, and local info.
+                        <br><br>
+                        Try asking: "When is the next boat to Bainbridge?" or "Is there coffee near the Kingston dock?"
                     </div>
                 </div>
             </div>
             <div class="input-area">
-                <input type="text" id="input" placeholder="Ask about flights or hotels..." autofocus>
+                <input type="text" id="input" placeholder="Ask about ferries..." autofocus>
                 <button id="send">Send</button>
             </div>
         </div>
@@ -198,11 +199,18 @@ async def root():
                     const messages = data.output.messages;
                     const lastMessage = messages[messages.length - 1];
                     
-                    addMessage(lastMessage.content, 'assistant');
+                    let cleanText = "";
+                    if (Array.isArray(lastMessage.content)) {
+                        cleanText = lastMessage.content.map(block => block.text || "").join("");
+                    } else {
+                        cleanText = lastMessage.content;
+                    }
+
+                    addMessage(cleanText, 'assistant');
                     
                 } catch (error) {
-                    document.getElementById(typingId).remove();
-                    addMessage('Sorry, something went wrong. Please try again. Error: ' + error.message, 'assistant error');
+                    if(document.getElementById(typingId)) document.getElementById(typingId).remove();
+                    addMessage('Sorry, something went wrong. Error: ' + error.message, 'assistant error');
                     console.error('Error:', error);
                 }
                 
@@ -216,7 +224,7 @@ async def root():
                 div.className = 'message ' + className;
                 const content = document.createElement('div');
                 content.className = 'message-content';
-                content.textContent = text;
+                content.innerHTML = text.replace(/\\n/g, '<br>');
                 div.appendChild(content);
                 chat.appendChild(div);
                 chat.scrollTop = chat.scrollHeight;
@@ -231,11 +239,10 @@ async def root():
     </html>
     """
 
-# API routes - these go AFTER the custom route
-# API routes - these go AFTER the custom route
+# API routes
 add_routes(
     app,
-    graph.with_config(configurable={"thread_id": "default"}),
+    schedule_agent,
     path="/agent",
     playground_type="default",
 )

@@ -1,18 +1,19 @@
-# 1. Use a lightweight Python version
 FROM python:3.11-slim
 
-# 2. Set the working directory inside the container
 WORKDIR /app
 
-# 3. Copy the shopping list and install ingredients
+# Copy the requirements file
 COPY requirements.txt .
+
+# Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 4. Copy the rest of the code
+# Copy all your SoundHopper files (agent.py, tools.py, etc)
 COPY . .
 
-# 5. Tell Google to listen on port 8080
+# Expose the port
+EXPOSE 8080
 ENV PORT=8080
 
-# 6. The Command to Start the Engine
-CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8080"]
+# Run the server
+CMD ["python", "server.py"]
