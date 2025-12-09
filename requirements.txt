@@ -1,8 +1,6 @@
 fastapi
 uvicorn
-langchain==0.3.0
-langchain-community==0.3.0
-langchain-core==0.3.0
+langchain
 langchain-google-genai
 langgraph
 googlemaps
@@ -11,5 +9,5 @@ requests
 parsedatetime
 pytz
 python-dotenv
-langserve[all]==0.3.0
-pydantic>=2.0
+langserve[all]
+pydantic
