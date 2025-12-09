@@ -17,7 +17,7 @@ from knowledge import TERMINAL_DATA
 
 # --- API KEYS ---
 WSDOT_API_KEY = "2b0c0878-16f0-44b7-97e8-5c48f77e14fb" # Mike's WSDOT Key
-GMAPS_API_KEY = "AIzaSyBtRzkN7I16ZhJZnVlv4XgSA4UBDvPgeRo" # Mike's Google Maps Key
+GMAPS_API_KEY = "" # Mike's Google Maps Key
 
 # Initialize Google Maps
 gmaps = googlemaps.Client(key=GMAPS_API_KEY)
